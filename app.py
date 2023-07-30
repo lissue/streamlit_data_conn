@@ -5,6 +5,7 @@ import streamlit as st
 from datetime import date
 from datarobot_connection.connection import DataRobotConnection
 
+
 conn = st.experimental_connection(
     'datarobot',
     type=DataRobotConnection,
@@ -23,6 +24,14 @@ with col1:
     else:
         df = df_query.reset_index()
         df['Organization'] = None
-edited_df = st.data_editor(df)
+col0, col1 = st.columns(2)
+with col0:
+    filter_col = st.selectbox('Filter by', df.columns)
+with col1:
+    filter_text = st.text_input('Filter text')
+    if len(filter_text) > 0:
+        df = df[df[filter_col].str.contains(filter_text)]
+column_config = {'URL': st.column_config.LinkColumn('URL')}
+edited_df = st.data_editor(df, column_config=column_config)
 if st.button('Save'):
     edited_df.to_csv(f'./records/{query}_{date.today()}.csv')

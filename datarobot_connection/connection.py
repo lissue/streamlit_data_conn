@@ -14,6 +14,7 @@ class DataRobotConnection(ExperimentalBaseConnection[dr.Client]):
             DATAROBOT_ENDPOINT = self._secrets['DATAROBOT_ENDPOINT']
         return dr.Client(token=DATAROBOT_API_KEY, endpoint=DATAROBOT_ENDPOINT)
 
+
     def query(self, query:str, ttl:int=3600, **kwargs) -> pd.DataFrame:
         @cache_data(ttl=ttl)
         def _query(query:str, **kwargs) -> pd.DataFrame:
@@ -23,32 +24,47 @@ class DataRobotConnection(ExperimentalBaseConnection[dr.Client]):
                 dataset_id = [d.id for d in datasets]
                 dataset_categories = [d.categories for d in datasets]
                 dataset_created_at = [d.created_at for d in datasets]
+                dataset_url = [
+                    f'https://app.datarobot.com/ai-catalog/{d.id}'
+                    for d in datasets
+                ]
                 res = pd.DataFrame(
                     {
                         'Name': dataset_name,
                         'Category': dataset_categories,
                         'Creation Date': dataset_created_at,
                         'ID': dataset_id,
+                        'URL': dataset_url,
                     }
                 )
             elif query == 'projects':
                 projects = dr.Project.list()
                 project_name = [p.project_name for p in projects]
                 project_id = [p.id for p in projects]
+                project_url = [
+                    f'https://app.datarobot.com/projects/{p.id}'
+                    for p in projects
+                ]
                 res = pd.DataFrame(
                     {
                         'Name': project_name,
                         'ID': project_id,
+                        'URL': project_url,
                     }
                 )
             elif query == 'deployments':
                 deployments = dr.Deployment.list()
                 deployment_name = [d.label for d in deployments]
                 deployment_id = [d.id for d in deployments]
+                deployment_url = [
+                    f'https://app.datarobot.com/deployments/{d.id}'
+                    for d in deployments
+                ]
                 res = pd.DataFrame(
                     {
                         'Name': deployment_name,
                         'ID': deployment_id,
+                        'URL': deployment_url,
                     }
                 )
             return res
