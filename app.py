@@ -10,6 +10,7 @@ conn = st.experimental_connection(
     'datarobot',
     type=DataRobotConnection,
 )
+st.title('DataRobot Assets')
 col0, col1 = st.columns(2)
 with col0:
     options = ['datasets', 'projects', 'deployments']
@@ -30,6 +31,7 @@ with col0:
 with col1:
     filter_text = st.text_input('Filter text')
     if len(filter_text) > 0:
+        df = df.dropna(subset=filter_col)
         df = df[df[filter_col].str.contains(filter_text)]
 column_config = {'URL': st.column_config.LinkColumn('URL')}
 edited_df = st.data_editor(df, column_config=column_config)
